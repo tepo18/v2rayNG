@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.tepo98.ang"
+    namespace = "com.tepo98"
     compileSdk = 35
 
     defaultConfig {
