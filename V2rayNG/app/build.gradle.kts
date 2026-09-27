@@ -17,10 +17,12 @@ android {
         multiDexEnabled = true
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
+
         splits {
             abi {
                 isEnable = true
                 reset()
+
                 if (abiFilterList != null && abiFilterList.isNotEmpty()) {
                     include(*abiFilterList.toTypedArray())
                 } else {
@@ -31,6 +33,7 @@ android {
                         "x86"
                     )
                 }
+
                 isUniversalApk = abiFilterList.isNullOrEmpty()
             }
         }
@@ -41,6 +44,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -54,12 +58,20 @@ android {
         create("fdroid") {
             dimension = "distribution"
             applicationIdSuffix = ".fdroid"
-            buildConfigField("String", "DISTRIBUTION", "\"F-Droid\"")
+            buildConfigField(
+                "String",
+                "DISTRIBUTION",
+                "\"F-Droid\""
+            )
         }
 
         create("playstore") {
             dimension = "distribution"
-            buildConfigField("String", "DISTRIBUTION", "\"Play Store\"")
+            buildConfigField(
+                "String",
+                "DISTRIBUTION",
+                "\"Play Store\""
+            )
         }
     }
 
@@ -81,9 +93,12 @@ android {
 
     applicationVariants.all {
         val variant = this
-        val isFdroid = variant.productFlavors.any { it.name == "fdroid" }
+        val isFdroid = variant.productFlavors.any {
+            it.name == "fdroid"
+        }
 
         if (isFdroid) {
+
             val versionCodes =
                 mapOf(
                     "armeabi-v7a" to 2,
@@ -94,22 +109,31 @@ android {
                 )
 
             variant.outputs
-                .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
+                .map {
+                    it as com.android.build.gradle.internal.api.ApkVariantOutputImpl
+                }
                 .forEach { output ->
-                    val abi = output.getFilter("ABI") ?: "universal"
+
+                    val abi =
+                        output.getFilter("ABI") ?: "universal"
 
                     output.outputFileName =
                         "tepo98_${variant.versionName}-fdroid_${abi}.apk"
 
                     if (versionCodes.containsKey(abi)) {
+
                         output.versionCodeOverride =
-                            (100 * variant.versionCode + versionCodes[abi]!!)
+                            (100 * variant.versionCode +
+                                    versionCodes[abi]!!)
                                 .plus(5000000)
+
                     } else {
                         return@forEach
                     }
                 }
+
         } else {
+
             val versionCodes =
                 mapOf(
                     "armeabi-v7a" to 4,
@@ -120,21 +144,27 @@ android {
                 )
 
             variant.outputs
-                .map { it as com.android.build.gradle.internal.api.ApkVariantOutputImpl }
+                .map {
+                    it as com.android.build.gradle.internal.api.ApkVariantOutputImpl
+                }
                 .forEach { output ->
+
                     val abi =
-                        if (output.getFilter("ABI") != null)
+                        if (output.getFilter("ABI") != null) {
                             output.getFilter("ABI")
-                        else
+                        } else {
                             "universal"
+                        }
 
                     output.outputFileName =
                         "tepo98_${variant.versionName}_${abi}.apk"
 
                     if (versionCodes.containsKey(abi)) {
+
                         output.versionCodeOverride =
                             (1000000 * versionCodes[abi]!!)
                                 .plus(variant.versionCode)
+
                     } else {
                         return@forEach
                     }
@@ -155,8 +185,16 @@ android {
 }
 
 dependencies {
+
     // Core Libraries
-    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
+    implementation(
+        fileTree(
+            mapOf(
+                "dir" to "libs",
+                "include" to listOf("*.aar", "*.jar")
+            )
+        )
+    )
 
     // AndroidX Core Libraries
     implementation(libs.androidx.core.ktx)
@@ -208,5 +246,6 @@ dependencies {
     testImplementation(libs.org.mockito.mockito.inline)
     testImplementation(libs.mockito.kotlin)
 
+    // Desugaring
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
